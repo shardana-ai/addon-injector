@@ -1,0 +1,35 @@
+{
+  "$schema": "https://shardana.ai/schemas/addon-manifest.json",
+  "id": "contact-form",
+  "name": "Heroic Contact Form",
+  "version": "1.0.0",
+  "description": "Embeddable contact form that posts submissions to Mailgun via a Lambda backend.",
+  "injection": "script",
+  "src": "https://forms.shardana.ai/v1/widget.js",
+  "params": {
+    "formId": {
+      "type": "string",
+      "required": true,
+      "description": "Unique form identifier created by the admin panel."
+    },
+    "submitUrl": {
+      "type": "string",
+      "required": true,
+      "description": "Lambda endpoint that handles form submissions."
+    },
+    "fields": {
+      "type": "string",
+      "default": "name,email,message",
+      "description": "Comma-separated list of field names to render."
+    },
+    "theme": {
+      "type": "string",
+      "enum": ["light", "dark"],
+      "default": "light",
+      "description": "Visual variant matched to the host landing's appearance."
+    }
+  },
+  "homepage": "https://github.com/shardana-ai/addon-contact-form",
+  "maintainer": "shardana.ai",
+  "license": "MIT"
+}

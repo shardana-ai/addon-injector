@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile=false
+      - run: pnpm typecheck
+      - run: pnpm build
+      - run: pnpm test
+
+      - name: Verify UMD bundle is under 5KB gzip
+        run: |
+          SIZE=$(gzip -c dist/umd/shardana-addon-injector.umd.global.js | wc -c)
+          echo "UMD gzip size: $SIZE bytes"
+          if [ "$SIZE" -gt 5120 ]; then
+            echo "::error::UMD bundle exceeds 5KB gzip budget ($SIZE bytes)"
+            exit 1
+          fi
