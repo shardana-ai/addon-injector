@@ -18,10 +18,19 @@ const semverSchema = z
   .string()
   .regex(/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/, "Use semantic versioning (e.g. 1.0.0)");
 
+// Manifests are published by addon authors and must point to a public URL.
 const httpsUrlSchema = z
   .string()
   .url()
   .regex(/^https?:\/\//i, "src must be http(s)");
+
+// Per-instance configs accept either an http(s) URL OR a root-relative path
+// (`/assets/...`). The latter is what the Heroic build pipeline produces
+// when it copies an npm-installed addon bundle into the landing's dist.
+const localOrHttpsUrlSchema = z
+  .string()
+  .min(1)
+  .regex(/^(?:https?:\/\/|\/(?!\/))/i, "src must be http(s) or root-relative");
 
 const paramValueSchema = z.union([z.string(), z.number(), z.boolean()]);
 
@@ -54,7 +63,7 @@ export const addonConfigSchema = z.object({
   id: slugSchema,
   enabled: z.boolean().default(true),
   injection: injectionKindSchema,
-  src: httpsUrlSchema,
+  src: localOrHttpsUrlSchema,
   params: z.record(paramValueSchema).default({}),
   target: z.string().min(1).optional(),
   tag: z.string().min(1).optional(),

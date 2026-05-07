@@ -5,7 +5,11 @@
 import type { AddonConfig, AddonParamValue } from "./types.js";
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const SAFE_URL_RE = /^https?:\/\//i;
+// Accept absolute URLs (`https?://...`) or root-relative paths (`/foo`,
+// excluding protocol-relative `//foo`). Root-relative is needed when the
+// addon bundle is served from the landing's own origin, e.g. after the
+// Heroic build copies it under `/assets/addons/<id>.js`.
+const SAFE_URL_RE = /^(?:https?:\/\/|\/(?!\/))/i;
 
 export class AddonError extends Error {
   constructor(message: string) {
@@ -32,7 +36,7 @@ export function assertAddonConfig(config: unknown): asserts config is AddonConfi
     throw new AddonError(`Invalid injection kind for "${c.id}": ${String(c.injection)}`);
   }
   if (typeof c.src !== "string" || !SAFE_URL_RE.test(c.src)) {
-    throw new AddonError(`Invalid src URL for "${c.id}" (must be http(s)): ${String(c.src)}`);
+    throw new AddonError(`Invalid src for "${c.id}" (must be http(s) or root-relative): ${String(c.src)}`);
   }
   if (c.params !== undefined && (typeof c.params !== "object" || c.params === null || Array.isArray(c.params))) {
     throw new AddonError(`params must be a plain object on "${c.id}"`);
