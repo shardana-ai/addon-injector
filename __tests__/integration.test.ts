@@ -53,13 +53,19 @@ describe("integration: plan.addons → manifest validation → render → inject
 
   it("renderAddons + DOMParser produces nodes equivalent to injectAddons", () => {
     const html = renderAddons(planAddons as AddonConfig[]);
-    const win = new Window({ url: "https://landing.shardana.ai/" });
+    const win = new Window({
+      url: "https://landing.shardana.ai/",
+      settings: { disableJavaScriptFileLoading: true, disableJavaScriptEvaluation: true, disableCSSFileLoading: true },
+    });
     win.document.body.innerHTML = html;
     const renderedIds = Array.from(win.document.body.querySelectorAll("[data-addon-id]"))
       .map((n) => n.getAttribute("data-addon-id"));
     win.close();
 
-    const win2 = new Window({ url: "https://landing.shardana.ai/" });
+    const win2 = new Window({
+      url: "https://landing.shardana.ai/",
+      settings: { disableJavaScriptFileLoading: true, disableJavaScriptEvaluation: true, disableCSSFileLoading: true },
+    });
     const mounted = injectAddons(planAddons as AddonConfig[], {
       document: win2.document as unknown as Document,
     });

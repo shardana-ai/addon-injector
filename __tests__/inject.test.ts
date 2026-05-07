@@ -8,7 +8,19 @@ let window: Window;
 let document: Document;
 
 beforeEach(() => {
-  window = new Window({ url: "https://landing.shardana.ai/" });
+  // Disable resource loading: appending a <script src="..."> to the DOM
+  // would otherwise trigger a real fetch via happy-dom's loader and produce
+  // unhandled `getaddrinfo ENOTFOUND` errors against the test fixture URLs.
+  // We only assert on the markup the injector emits, never on script
+  // execution.
+  window = new Window({
+    url: "https://landing.shardana.ai/",
+    settings: {
+      disableJavaScriptFileLoading: true,
+      disableJavaScriptEvaluation: true,
+      disableCSSFileLoading: true,
+    },
+  });
   document = window.document as unknown as Document;
 });
 
