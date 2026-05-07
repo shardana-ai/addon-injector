@@ -85,7 +85,7 @@ describe("injectAddon — iframe", () => {
   };
 
   it("appends a sandboxed iframe with params in the querystring", () => {
-    const [iframe] = injectAddon(iframeConfig, { document }) as HTMLIFrameElement[];
+    const iframe = injectAddon(iframeConfig, { document })[0] as HTMLIFrameElement;
     expect(iframe.tagName).toBe("IFRAME");
     expect(iframe.src).toBe("https://book.example.com/widget?theme=light");
     expect(iframe.getAttribute("sandbox")).toBe("allow-scripts allow-forms allow-same-origin");
