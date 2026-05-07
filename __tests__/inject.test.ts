@@ -8,7 +8,19 @@ let window: Window;
 let document: Document;
 
 beforeEach(() => {
-  window = new Window({ url: "https://landing.shardana.ai/" });
+  // Disable resource loading: appending a <script src="..."> to the DOM
+  // would otherwise trigger a real fetch via happy-dom's loader and produce
+  // unhandled `getaddrinfo ENOTFOUND` errors against the test fixture URLs.
+  // We only assert on the markup the injector emits, never on script
+  // execution.
+  window = new Window({
+    url: "https://landing.shardana.ai/",
+    settings: {
+      disableJavaScriptFileLoading: true,
+      disableJavaScriptEvaluation: true,
+      disableCSSFileLoading: true,
+    },
+  });
   document = window.document as unknown as Document;
 });
 
@@ -73,7 +85,7 @@ describe("injectAddon — iframe", () => {
   };
 
   it("appends a sandboxed iframe with params in the querystring", () => {
-    const [iframe] = injectAddon(iframeConfig, { document }) as HTMLIFrameElement[];
+    const iframe = injectAddon(iframeConfig, { document })[0] as HTMLIFrameElement;
     expect(iframe.tagName).toBe("IFRAME");
     expect(iframe.src).toBe("https://book.example.com/widget?theme=light");
     expect(iframe.getAttribute("sandbox")).toBe("allow-scripts allow-forms allow-same-origin");
